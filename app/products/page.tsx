@@ -15,6 +15,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const body = document.querySelector('body')
       try {
         const response = await fetch('/api/products');
         const data = await response.json();
@@ -80,7 +81,7 @@ export default function ProductsPage() {
                   href={product.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                   className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300"
                 >
                   Learn More
                 </a>
