@@ -13,24 +13,46 @@ interface Research {
 
 export default function ResearchPage() {
   const [research, setResearch] = useState<Research[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false);  // Set loading state to false initially
+  const [page, setPage] = useState<number>(1);  // Track current page
+  const [hasMore, setHasMore] = useState<boolean>(true);  // Check if more data exists
+  const pageSize = 4;  // Set page size to 4 or any other value
 
+  // Fetch research data with pagination
+  const fetchResearch = async (pageNumber: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/research?page=${pageNumber}&pageSize=${pageSize}`);
+      const data = await response.json();
+      console.log("Research data:", data);
+
+      // Ensure we don't append duplicate research
+      setResearch((prevResearch) => {
+        // Only append new research if it is not already in the list
+        const newResearch = data.researches.filter(
+          (newItem: Research) => !prevResearch.some((item) => item.title === newItem.title)
+        );
+        return [...prevResearch, ...newResearch];
+      });
+      setHasMore(data.hasMore);
+    } catch (error) {
+      console.error('Error fetching research:', error);
+    } finally {
+      setLoading(false);  // Ensure loading state is turned off once the data is fetched
+    }
+  };
+
+  // Fetch research when page changes
   useEffect(() => {
-    const fetchResearch = async () => {
-      try {
-        const response = await fetch('/api/research');
-        const data = await response.json();
-        console.log("research data: " + JSON.stringify(data));
-        setResearch(data?.researches ?? []);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching research:', error);
-        setLoading(false);
-      }
-    };
+    fetchResearch(page);
+  }, [page]);  // Trigger fetch when the page changes
 
-    fetchResearch();
-  }, []);
+  // Load more button handler
+  const loadMore = () => {
+    if (hasMore && !loading) {
+      setPage((prevPage) => prevPage + 1);  // Increment page number if more data is available
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 px-6 sm:px-10">
@@ -101,6 +123,25 @@ export default function ResearchPage() {
                 </a>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={loadMore}
+              className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-lg backdrop-blur-md hover:bg-gradient-to-bl hover:scale-105 transition-all duration-300"
+            >
+              Load More
+            </button>
+          </div>
+        )}
+
+        {/* No more research message */}
+        {!hasMore && !loading && (
+          <div className="text-center mt-12 text-gray-400">
+            <p>No more Research to show!</p>
           </div>
         )}
       </div>

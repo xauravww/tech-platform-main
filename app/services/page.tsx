@@ -10,6 +10,7 @@ interface SubService {
 }
 
 interface Service {
+  _id: any;
   category: string;
   description: string;
   sub_services: SubService[];
@@ -18,28 +19,37 @@ interface Service {
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
 
+  const fetchServices = async () => {
+    try {
+      setLoading(true); // Show loading spinner when fetching
+      const response = await fetch(`/api/services?page=${page}&pageSize=10`);
+      const data = await response.json();
+      setServices((prev) => {
+        const existingIds = new Set(prev.map(service => service._id)); // Collect existing service IDs
+        const filteredServices = data?.services?.filter((service: { _id: any; }) => !existingIds.has(service._id)) ?? [];
+        return [...prev, ...filteredServices];
+      });
+      
+      setHasMore(data?.hasMore ?? false); // Update the "hasMore" flag
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    } finally {
+      setLoading(false); // Hide loading spinner after fetching
+    }
+  };
+
+  // Fetch services when the page number changes
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch('/api/services');
-        const data = await response.json();
-        setServices(data?.services ?? []);
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchServices();
-  }, []);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 px-6 sm:px-10">
       <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -48,7 +58,6 @@ export default function ServicesPage() {
           Our Services
         </motion.h1>
 
-        {/* Loading Skeleton */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, index) => (
@@ -115,6 +124,25 @@ export default function ServicesPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-lg backdrop-blur-md hover:bg-gradient-to-bl hover:scale-105 transition-all duration-300"
+            >
+              Load More
+            </button>
+          </div>
+        )}
+
+        {/* If no more content */}
+        {!hasMore && !loading && (
+          <div className="text-center mt-12 text-gray-400">
+            <p>No more services to show!</p>
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Navbar } from './components/Navbar';
- 
+import { Link, Button, Element, Events, animateScroll as scroll, scrollSpy } from 'react-scroll';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {

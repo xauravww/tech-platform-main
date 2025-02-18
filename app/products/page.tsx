@@ -12,26 +12,38 @@ interface Product {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);  // Track if there are more products to load
+  const [page, setPage] = useState(1);
 
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/products?page=${page}&pageSize=4`); // Pagination logic
+      const data = await response.json();
+
+      // Filter out already existing products to prevent duplication
+      const newProducts = data?.products ?? [];
+      setProducts((prev) => {
+        const existingNames = new Set(prev.map(product => product.name));
+        const filteredProducts = newProducts.filter((product: { name: string; }) => !existingNames.has(product.name));
+        return [...prev, ...filteredProducts];
+      });
+
+      setHasMore(data?.hasMore ?? false); // Update "hasMore" based on the response
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false); // Hide loading spinner
+    }
+  };
+
+  // Fetch products when the page number changes
   useEffect(() => {
-    const fetchProducts = async () => {
-      const body = document.querySelector('body')
-      try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
-        setProducts(data?.products || []);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
-  }, []);
+  }, [page]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 px-6 sm:px-10" style={{ minHeight: "calc(100vh - 65px )" }}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12 px-6 sm:px-10" style={{ minHeight: "calc(100vh - 65px)" }}>
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <motion.h1
@@ -87,6 +99,25 @@ export default function ProductsPage() {
                 </a>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => setPage((prev) => prev + 1)} // Increment page number
+              className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-lg backdrop-blur-md hover:bg-gradient-to-bl hover:scale-105 transition-all duration-300"
+            >
+              Load More
+            </button>
+          </div>
+        )}
+
+        {/* No more products message */}
+        {!hasMore && !loading && (
+          <div className="text-center mt-12 text-gray-400">
+            <p>No more products to show!</p>
           </div>
         )}
       </div>
