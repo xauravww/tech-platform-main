@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion';
 
 export default function Home() {
