@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -36,7 +37,7 @@ export default function Home() {
               transition={{ delay }}
               className="bg-white/10 hover:bg-white/20  backdrop-blur-lg rounded-xl shadow-lg p-6 hover:scale-105 transform transition-all duration-300"
             >
-              <Link href={href} className="block">
+              <Link prefetch={false} href={href} className="block">
                 <h2 className="text-3xl font-semibold text-white mb-3">{title}</h2>
                 <p className="text-gray-300">{description}</p>
               </Link>

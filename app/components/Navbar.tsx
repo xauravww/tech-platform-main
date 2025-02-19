@@ -22,7 +22,7 @@ export const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-xl font-bold text-white">
+            <Link prefetch={false} href="/" className="text-xl font-bold text-white">
               TechPlatform
             </Link>
           </div>
@@ -30,18 +30,21 @@ export const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden sm:flex sm:ml-6 sm:space-x-8 sm:justify-end">
             <Link
+            prefetch={false}
               href="/services"
               className="text-white inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-400 hover:text-gray-300"
             >
               Services
             </Link>
             <Link
+            prefetch={false}
               href="/products"
               className="text-white inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-400 hover:text-gray-300"
             >
               Products
             </Link>
             <Link
+            prefetch={false}
               href="/research"
               className="text-white inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-400 hover:text-gray-300"
             >
@@ -96,6 +99,7 @@ export const Navbar = () => {
           Services
         </Link>
         <Link
+        prefetch={false}
           href="/products"
           className="block px-2 py-1 text-white hover:text-gray-300"
           onClick={closeMenu}
@@ -103,6 +107,7 @@ export const Navbar = () => {
           Products
         </Link>
         <Link
+        prefetch={false}
           href="/research"
           className="block px-2 py-1 text-white hover:text-gray-300"
           onClick={closeMenu}
